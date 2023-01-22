@@ -1,0 +1,6 @@
+venv/
+pvz/
+
+# Ignore .env files
+.env
+.env.local
