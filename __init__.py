@@ -6,7 +6,6 @@ app = Flask(__name__)
 @app.route("/login")
 def login():
     return render_template("login.html")
-    # return "<h1>Add article</h1>"
 
 
 @app.route("/register")
@@ -24,6 +23,5 @@ def groups():
     return render_template("groups.html")
 
 
-    # db = SQLAlchemy(app)
 if __name__ == "__main__":
     app.run(port=8000, debug=True)

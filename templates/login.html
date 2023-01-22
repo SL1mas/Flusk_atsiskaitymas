@@ -17,44 +17,75 @@
       integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
       crossorigin="anonymous"
     />
+    <link rel="stylesheet" href="../static/sign-in.css" />
     <title>{% block title %}{% endblock %}</title>
   </head>
-  <body>
-    <header>
-      <div
-        class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"
-      >
-        <a
-          href="{{ url_for('login') }}"
-          class="d-flex align-items-center mb-3 mb-lg-0 me-lg-auto text-decoration-none fs-4"
-        >
-          Split Bill
-        </a>
-        <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
-          <li>
-            <a
-              href="{{ url_for('register') }}"
-              class="nav-link px-2 text-secondary"
-              >Register</a
-            >
-          </li>
-          <li>
-            <a
-              href="{{ url_for('groups') }}"
-              class="nav-link px-2 text-secondary"
-              >Groups</a
-            >
-          </li>
-          <li>
-            <a
-              href="{{ url_for('bills') }}"
-              class="nav-link px-2 text-secondary"
-              >Bills</a
-            >
-          </li>
-        </ul>
-      </div>
+  <body class="form-signin w-100 m-auto d-flex flex-column">
+    <!-- delete this div -->
+    <div
+      class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"
+    >
+      <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+        <li>
+          <a
+            href="{{ url_for('register') }}"
+            class="nav-link px-2 text-secondary"
+            >Register</a
+          >
+        </li>
+        <li>
+          <a href="{{ url_for('groups') }}" class="nav-link px-2 text-secondary"
+            >Groups</a
+          >
+        </li>
+        <li>
+          <a href="{{ url_for('bills') }}" class="nav-link px-2 text-secondary"
+            >Bills</a
+          >
+        </li>
+      </ul>
+    </div>
+    <header class="text-center">
+      <a href="{{ url_for('login') }}">
+        <img
+          class="mb-4"
+          src="https://cdn.cdnlogo.com/logos/g/23/goolge-icon.png"
+          alt="Logo"
+          width="60"
+          height="57"
+        />
+        <h1 class="h3 mb-3 fw-bold text-dark">Split Bill</h1>
+        <h1 class="h3 mb-3 fw-light text-muted">BEST IN MARKET</h1>
+      </a>
     </header>
-    <main class="container">{% block main %}{% endblock %}</main>
+    <main>
+      {% block main %}
+      <form class="text-left mb-3">
+        <h1 class="h5 mt-5 mb-3 fw-bold">Login</h1>
+        <div class="form-floating">
+          <input
+            type="email"
+            class="form-control"
+            id="floatingInput"
+            placeholder="name@example.com"
+          />
+          <label for="floatingInput">Email</label>
+        </div>
+        <div class="mt-2 form-floating">
+          <input
+            type="password"
+            class="form-control"
+            id="floatingPassword"
+            placeholder="Password"
+          />
+          <label for="floatingPassword">Password</label>
+        </div>
+        <button class="w-40 btn btn-lg btn-primary" type="submit">Login</button>
+      </form>
+      <a href="{{ url_for('register') }}" class="text-muted"
+        >Don't have an account? Register</a
+      >
+      {% endblock %}
+    </main>
   </body>
 </html>
