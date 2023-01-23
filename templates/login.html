@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="../static/sign-in.css" />
     <title>{% block title %}{% endblock %}</title>
   </head>
-  <body class="form-signin w-100 m-auto d-flex flex-column">
+  <body class="d-flex flex-column">
     <!-- delete this div -->
     <div
       class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"
@@ -46,7 +46,7 @@
       </ul>
     </div>
     <header class="text-center">
-      <a href="{{ url_for('login') }}">
+      <a href="{{ url_for('login') }}" class="no_decoration">
         <img
           class="mb-4"
           src="https://cdn.cdnlogo.com/logos/g/23/goolge-icon.png"
@@ -80,9 +80,9 @@
           />
           <label for="floatingPassword">Password</label>
         </div>
-        <button class="w-40 btn btn-lg btn-primary" type="submit">Login</button>
+        <button class="mt-2 w-40 btn btn-primary" type="submit">Login</button>
       </form>
-      <a href="{{ url_for('register') }}" class="text-muted"
+      <a href="{{ url_for('register') }}" class="text-muted mb-5"
         >Don't have an account? Register</a
       >
       {% endblock %}
