@@ -11,7 +11,7 @@ app.config['SECRET_KEY'] = 'vfv822fvfv26f5dfadsrfasdr54e6rae'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
     os.path.join(basedir, 'data2.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# app.app_context().push()
+app.app_context().push()
 db = SQLAlchemy(app)
 
 bcrypt = Bcrypt(app)
@@ -28,6 +28,8 @@ class Vartotojas(db.Model, UserMixin):
                           unique=True, nullable=False)
     slaptazodis = db.Column("Slaptažodis", db.String(100),
                             unique=True, nullable=False)
+    # group_id = db.Column(db.Integer, db.ForeignKey('group_id'))
+    # group = db.relationship('Group')
 
 
 @login_manager.user_loader
@@ -73,21 +75,29 @@ def login():
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    # bill_id = db.Column(db.Integer, db.ForeignKey('bill_id'))
+    # bill = db.relationship("Bill", backref="group")
+    # vartotojai = db.relationship("Vartotojas")
 
-    def __init__(self, group_id, name):
+    def __init__(self, group_id, name, bill_id=None):
         self.group_id = group_id
         self.name = name
+        self.bill_id = bill_id
 
 
 class Bill(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    amount = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(100), nullable=False)
-    amount = db.Column(db.Integer, nullable=False)
+    # group_id = db.Column(db.Integer, db.ForeignKey('group_id'))
+    # group = db.relationship("Group")
 
-    def __init__(self, bill_id, description, amount):
-        self.bill_id = bill_id
-        self.description = description
-        self.amount = amount
+
+@app.route("/groups")
+@login_required
+def groups():
+    groups = Group.query.all()
+    return render_template("groups.html", groups=groups)
 
 
 @app.route("/bills")
@@ -97,11 +107,20 @@ def bills():
     return render_template("bills.html", bills=bills)
 
 
-@app.route("/groups")
+@app.route("/bill/<int:id>", methods=['GET', 'POST'])
 @login_required
-def groups():
-    groups = Group.query.all()
-    return render_template("groups.html", groups=groups)
+def bill(id):
+    db.create_all()
+    group = Group.query.get(id)
+    bills = Bill.query.all()
+    form = forms.AddBillForma()
+    if form.validate_on_submit():
+        bill = Bill(amount=form.amount.data, description=form.description.data)
+        db.session.add(bill)
+        db.session.commit()
+        flash('Įrašas įvestas sėkmingai!', 'success')
+        return redirect(url_for('groups'))
+    return render_template('bill.html', group=group, bills=bills, form=form)
 
 
 @app.route("/logout", methods=['GET', 'POST'])

@@ -5,12 +5,14 @@
   {% for group in groups %}
   <div class="cell card shadow-sm">
     <div class="card-body text-center">
-      <a href="{{ url_for('bills') }}" class="no_decoration text-dark"
+      <a
+        href="{{ url_for('bill', id=group.id) }}"
+        class="no_decoration text-dark"
         ><strong>ID: {{ group.id }}</strong></a
       >
       <br />
       <a
-        href="{{ url_for('bills') }}"
+        href="{{ url_for('bill', id=group.id) }}"
         class="text-muted text-center no_decoration"
         >{{ group.name }}</a
       >

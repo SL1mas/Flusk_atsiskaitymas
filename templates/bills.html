@@ -10,8 +10,8 @@
     </tr>
   </thead>
   <tbody>
-    <tr>
-      {% for bill in bills %}
+    </tr>
+    {% for bill in bills %}
       <th scope="row">{{ bill.id }}</th>
       <td>{{ bill.description }}</td>
       <td>{{ bill.amount }}</td>
@@ -19,7 +19,6 @@
     {% endfor %}
   </tbody>
 </table>
-
 <div class="d-flex justify-content-center">
   <form
     class="text-left cell mt-5"

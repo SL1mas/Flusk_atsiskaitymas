@@ -1,6 +1,6 @@
 {% extends 'login.html' %} {% block title %}Register{% endblock %} {% block
 main%}
-<form class="text-left mb-3" method="POST" action="">
+<form class="text-left mb-3" method="POST" action="{{ url_for('register') }}">
   {{ form.hidden_tag() }}
   <h1 class="h5 mt-5 mb-3 fw-bold">Register</h1>
   <div class="form-group">
@@ -13,13 +13,6 @@ main%}
     </div>
     {% else %} {{ form.vardas(class="form-control form-control-lg") }} {% endif
     %}
-    <!-- <input
-      type="Full name"
-      class="form-control"
-      id="floatingName"
-      placeholder="name"
-    />
-    <label for="floatingInput">Full name</label> -->
   </div>
   <div class="form-group">
     {{ form.el_pastas.label(class="form-control-label") }} {% if
@@ -32,13 +25,6 @@ main%}
     </div>
     {% else %} {{ form.el_pastas(class="form-control form-control-lg") }} {%
     endif %}
-    <!-- <input
-      type="email"
-      class="form-control"
-      id="floatingEmail"
-      placeholder="name@example.com"
-    />
-    <label for="floatingInput">Email</label> -->
   </div>
   <div class="form-group">
     {{ form.slaptazodis.label(class="form-control-label") }} {% if
@@ -51,13 +37,6 @@ main%}
     </div>
     {% else %} {{ form.slaptazodis(class="form-control form-control-lg") }} {%
     endif %}
-    <!-- <input
-      type="password"
-      class="form-control"
-      id="floatingPassword"
-      placeholder="Password"
-    />
-    <label for="floatingPassword">Password</label> -->
   </div>
   <div class="form-group">
     {{ form.patvirtintas_slaptazodis.label(class="form-control-label") }} {% if
@@ -71,13 +50,6 @@ main%}
     </div>
     {% else %} {{ form.patvirtintas_slaptazodis(class="form-control
     form-control-lg") }} {% endif %}
-    <!-- <input
-      type="Repeat password"
-      class="form-control"
-      id="floatingRepPassword"
-      placeholder="Repeat password"
-    />
-    <label for="floatingPassword">Repeat password</label> -->
   </div>
   <div class="form-group">
     {{ form.submit(class="mt-2 w-40 btn btn-primary") }}
