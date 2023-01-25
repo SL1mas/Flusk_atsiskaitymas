@@ -75,22 +75,22 @@ def login():
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    # bill_id = db.Column(db.Integer, db.ForeignKey('bill_id'))
-    # bill = db.relationship("Bill", backref="group")
-    # vartotojai = db.relationship("Vartotojas")
 
-    def __init__(self, group_id, name, bill_id=None):
-        self.group_id = group_id
+    def __init__(self, name):
         self.name = name
-        self.bill_id = bill_id
 
 
 class Bill(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     amount = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(100), nullable=False)
-    # group_id = db.Column(db.Integer, db.ForeignKey('group_id'))
-    # group = db.relationship("Group")
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
+    group = db.relationship("Group")
+
+    def __init__(self, group_id, amount, description):
+        self.group_id = group_id
+        self.amount = amount
+        self.description = description
 
 
 @app.route("/groups")
@@ -115,11 +115,12 @@ def bill(id):
     bills = Bill.query.all()
     form = forms.AddBillForma()
     if form.validate_on_submit():
-        bill = Bill(amount=form.amount.data, description=form.description.data)
+        bill = Bill(group_id=group.id, amount=form.amount.data,
+                    description=form.description.data)
         db.session.add(bill)
         db.session.commit()
         flash('Įrašas įvestas sėkmingai!', 'success')
-        return redirect(url_for('groups'))
+        return redirect(request.url)
     return render_template('bill.html', group=group, bills=bills, form=form)
 
 

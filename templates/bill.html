@@ -11,12 +11,13 @@
   </thead>
   <tbody>
     <tr>
-      {% for bill in bills %}
-      <th scope="row">{{ bill.id }}</th>
+      {% set ns = namespace(c = 0) %} {% for bill in bills %} {% if
+      bill.group_id == group.id %} {% set ns.c = ns.c + 1 %}
+      <th scope="row">{{ns.c}}</th>
       <td>{{ bill.description }}</td>
       <td>{{ bill.amount }}</td>
     </tr>
-    {% endfor %}
+    {% endif %} {% endfor %}
   </tbody>
 </table>
 

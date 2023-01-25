@@ -39,8 +39,6 @@ class PrisijungimoForma(FlaskForm):
 
 
 class AddBillForma(FlaskForm):
-    # bill = QuerySelectField(
-    #     'Bill', query_factory=__init__.Bill.query.all, validators=[DataRequired()])
     amount = StringField('Amount', [DataRequired()])
     description = StringField('Description', [DataRequired()])
     submit = SubmitField('Add')

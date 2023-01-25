@@ -1,20 +1,26 @@
 from __init__ import db, Group, Bill
 
-group1 = Group("1", "Trip to Wonderland")
-group2 = Group("2", "Trip to Latvia")
-group3 = Group("3", "Trip to Estija")
-group4 = Group("4", "Trip to Space")
-group5 = Group("5", "Trip to Mountains")
-group6 = Group("6", "Trip to USA")
-group7 = Group("12", "Trip to Waterfall")
-group8 = Group("20", "Trip to Island")
-group9 = Group("129", "Trip to Nowhere")
-group10 = Group("1000", "Trip to Disneyland")
-
-# bill1 = Bill("1", "Bilietas", "10")
-# bill2 = Bill("2", "Skrydis", "150")
-
 db.create_all()
+
+group1 = Group("Trip to Wonderland")
+group2 = Group("Trip to Latvia")
+group3 = Group("Trip to Estija")
+group4 = Group("Trip to Space")
+group5 = Group("Trip to Mountains")
+group6 = Group("Trip to USA")
+group7 = Group("Trip to Waterfall")
+group8 = Group("Trip to Island")
+group9 = Group("Trip to Nowhere")
+group10 = Group("Trip to Disneyland")
+
+
 db.session.add_all([group1, group2, group3, group4, group5,
                    group6, group7, group8, group9, group10])
+db.session.commit()
+
+bill1 = Bill(group1.id, "10", "Bilietas")
+bill2 = Bill(group5.id, "150", "Skrydis")
+bill3 = Bill(group1.id, "2", "Ledai")
+
+db.session.add_all([bill1, bill2, bill3])
 db.session.commit()
