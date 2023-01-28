@@ -5,10 +5,6 @@ from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 import __init__
 
 
-# def group_query():
-#     return __init__.Group.query
-
-
 class RegistracijosForma(FlaskForm):
     vardas = StringField('Name', [DataRequired()])
     el_pastas = StringField('Email', [DataRequired()])
@@ -44,8 +40,6 @@ class AddBillForma(FlaskForm):
     submit = SubmitField('Add')
 
 
-# class AddGroupForma(FlaskForm):
-#     group_id = StringField('Group_ID', [DataRequired()])
-#     group = QuerySelectField(query_factory=group_query, allow_blank=True,
-#                              get_label="Name", get_pk=lambda obj: str(obj))
-#     submit = SubmitField('Add')
+class AddGroupForma(FlaskForm):
+    group_id = StringField('Group ID', [DataRequired()])
+    submit = SubmitField('Add')

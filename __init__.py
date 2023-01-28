@@ -19,6 +19,12 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'prisijungti'
 login_manager.login_message_category = 'info'
 
+users_groups = db.Table('users_groups', db.metadata,
+                        db.Column('id', db.Integer, primary_key=True),
+                        db.Column('group_id', db.Integer,
+                                  db.ForeignKey('group.id')),
+                        db.Column('vartotojas_id', db.Integer, db.ForeignKey('vartotojas.id')))
+
 
 class Vartotojas(db.Model, UserMixin):
     __tablename__ = "vartotojas"
@@ -28,53 +34,20 @@ class Vartotojas(db.Model, UserMixin):
                           unique=True, nullable=False)
     slaptazodis = db.Column("Slaptažodis", db.String(100),
                             unique=True, nullable=False)
-    # group_id = db.Column(db.Integer, db.ForeignKey('group_id'))
-    # group = db.relationship('Group')
+    groups = db.relationship(
+        'Group', secondary=users_groups, back_populates="vartotojai")
 
-
-@login_manager.user_loader
-def load_user(vartotojo_id):
-    return Vartotojas.query.get(int(vartotojo_id))
-
-
-@app.route("/register", methods=['GET', 'POST'])
-def register():
-    db.create_all()
-    if current_user.is_authenticated:
-        return redirect(url_for('groups'))
-    form = forms.RegistracijosForma()
-    if form.validate_on_submit():
-        koduotas_slaptazodis = bcrypt.generate_password_hash(
-            form.slaptazodis.data).decode('utf-8')
-        vartotojas = Vartotojas(
-            vardas=form.vardas.data, el_pastas=form.el_pastas.data, slaptazodis=koduotas_slaptazodis)
-        db.session.add(vartotojas)
-        db.session.commit()
-        flash('Sėkmingai prisiregistravote! Galite prisijungti', 'success')
-        return redirect(url_for('groups'))
-    return render_template('register.html', title='Register', form=form)
-
-
-@app.route("/login", methods=['GET', 'POST'])
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('groups'))
-    form = forms.PrisijungimoForma()
-    if form.validate_on_submit():
-        user = Vartotojas.query.filter_by(
-            el_pastas=form.el_pastas.data).first()
-        if user and bcrypt.check_password_hash(user.slaptazodis, form.slaptazodis.data):
-            login_user(user, remember=form.prisiminti.data)
-            next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('groups'))
-        else:
-            flash('Prisijungti nepavyko. Patikrinkite el. paštą ir slaptažodį', 'danger')
-    return render_template('login.html', title='Prisijungti', form=form)
+    # def __init__(self, vardas, el_pastas, slaptazodis):
+    #     self.vardas = vardas
+    #     self.el_pastas = el_pastas
+    #     self.slaptazodis = slaptazodis
 
 
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    vartotojai = db.relationship(
+        'Vartotojas', secondary=users_groups, back_populates="groups")
 
     def __init__(self, name):
         self.name = name
@@ -93,11 +66,68 @@ class Bill(db.Model):
         self.description = description
 
 
-@app.route("/groups")
+@login_manager.user_loader
+def load_user(vartotojo_id):
+    return Vartotojas.query.get(int(vartotojo_id))
+
+
+@app.route("/register", methods=['GET', 'POST'])
+def register():
+    db.create_all()
+    if current_user.is_authenticated:
+        return redirect(url_for('login'))
+    form = forms.RegistracijosForma()
+    if form.validate_on_submit():
+        koduotas_slaptazodis = bcrypt.generate_password_hash(
+            form.slaptazodis.data).decode('utf-8')
+        vartotojas = Vartotojas(
+            vardas=form.vardas.data, el_pastas=form.el_pastas.data, slaptazodis=koduotas_slaptazodis)
+        db.session.add(vartotojas)
+        db.session.commit()
+        flash('Sėkmingai prisiregistravote! Galite prisijungti', 'success')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form)
+
+
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect('groups', current_user.id)
+    form = forms.PrisijungimoForma()
+    if form.validate_on_submit():
+        user = Vartotojas.query.filter_by(
+            el_pastas=form.el_pastas.data).first()
+        if user and bcrypt.check_password_hash(user.slaptazodis, form.slaptazodis.data):
+            login_user(user, remember=form.prisiminti.data)
+            return redirect(url_for('groups', id=user.id))
+        else:
+            flash('Prisijungti nepavyko. Patikrinkite el. paštą ir slaptažodį', 'danger')
+    return render_template('login.html', title='Login', form=form)
+
+
+# @app.route("/groups")
+# @login_required
+# def groups():
+#     groups = Group.query.all()
+#     return render_template("groups.html", groups=groups)
+
+@app.route("/groups/<int:id>", methods=['GET', 'POST'])
 @login_required
-def groups():
+def groups(id):
+    db.create_all()
+    prisijunges_vartotojas = Vartotojas.query.get(id)
     groups = Group.query.all()
-    return render_template("groups.html", groups=groups)
+    form = forms.AddGroupForma()
+    if form.validate_on_submit():
+        pridedama_group = Group.query.get(form.group_id.data)
+        prisijunges_vartotojas.groups.append(pridedama_group)
+        db.session.add(prisijunges_vartotojas)
+        db.session.commit()
+        flash('Įrašas įvestas sėkmingai!', 'success')
+        return redirect(url_for('groups', id=prisijunges_vartotojas.id))
+        # 2nd option
+        # return redirect(request.url)
+    return render_template('groups.html', groups=groups, prisijunges_vartotojas=prisijunges_vartotojas, form=form)
 
 
 @app.route("/bills")
@@ -120,7 +150,9 @@ def bill(id):
         db.session.add(bill)
         db.session.commit()
         flash('Įrašas įvestas sėkmingai!', 'success')
-        return redirect(request.url)
+        return redirect(url_for('bill', id=group.id))
+        # 2nd option
+        # return redirect(request.url)
     return render_template('bill.html', group=group, bills=bills, form=form)
 
 

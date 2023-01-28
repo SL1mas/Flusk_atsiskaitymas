@@ -13,7 +13,6 @@ group8 = Group("Trip to Island")
 group9 = Group("Trip to Nowhere")
 group10 = Group("Trip to Disneyland")
 
-
 db.session.add_all([group1, group2, group3, group4, group5,
                    group6, group7, group8, group9, group10])
 db.session.commit()
