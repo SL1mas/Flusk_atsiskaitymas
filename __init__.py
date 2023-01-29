@@ -22,26 +22,25 @@ login_manager.login_message_category = 'info'
 users_groups = db.Table('users_groups', db.metadata,
                         db.Column('group_id', db.Integer,
                                   db.ForeignKey('group.id')),
-                        db.Column('vartotojas_id', db.Integer, db.ForeignKey('vartotojas.id')))
+                        db.Column('user_id', db.Integer, db.ForeignKey('user.id')))
 
 
-class Vartotojas(db.Model, UserMixin):
-    __tablename__ = "vartotojas"
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    vardas = db.Column("Vardas", db.String(100), nullable=False)
-    el_pastas = db.Column("El. pašto adresas", db.String(100),
-                          unique=True, nullable=False)
-    slaptazodis = db.Column("Slaptažodis", db.String(100),
-                            unique=True, nullable=False)
+    first_name = db.Column("First Name", db.String(100), nullable=False)
+    email = db.Column("Email", db.String(100),
+                      unique=True, nullable=False)
+    password = db.Column("Password", db.String(100),
+                         unique=True, nullable=False)
     groups = db.relationship(
-        'Group', secondary=users_groups, back_populates="vartotojai")
+        'Group', secondary=users_groups, back_populates="users")
 
 
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    vartotojai = db.relationship(
-        'Vartotojas', secondary=users_groups, back_populates="groups")
+    users = db.relationship(
+        'User', secondary=users_groups, back_populates="groups")
 
     def __init__(self, name):
         self.name = name
@@ -61,8 +60,8 @@ class Bill(db.Model):
 
 
 @login_manager.user_loader
-def load_user(vartotojo_id):
-    return Vartotojas.query.get(int(vartotojo_id))
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -70,13 +69,13 @@ def register():
     db.create_all()
     if current_user.is_authenticated:
         return redirect(url_for('login'))
-    form = forms.RegistracijosForma()
+    form = forms.RegistrationForm()
     if form.validate_on_submit():
-        koduotas_slaptazodis = bcrypt.generate_password_hash(
-            form.slaptazodis.data).decode('utf-8')
-        vartotojas = Vartotojas(
-            vardas=form.vardas.data, el_pastas=form.el_pastas.data, slaptazodis=koduotas_slaptazodis)
-        db.session.add(vartotojas)
+        encrypted_password = bcrypt.generate_password_hash(
+            form.password.data).decode('utf-8')
+        user = User(
+            first_name=form.name.data, email=form.email.data, password=encrypted_password)
+        db.session.add(user)
         db.session.commit()
         flash('You have successfully registered!', 'success')
         return redirect(url_for('login'))
@@ -87,11 +86,11 @@ def register():
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('groups', id=current_user.id))
-    form = forms.PrisijungimoForma()
+    form = forms.LoginForm()
     if form.validate_on_submit():
-        user = Vartotojas.query.filter_by(
-            el_pastas=form.el_pastas.data).first()
-        if user and bcrypt.check_password_hash(user.slaptazodis, form.slaptazodis.data):
+        user = User.query.filter_by(
+            email=form.email.data).first()
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user)
             return redirect(url_for('groups', id=user.id))
         else:
@@ -103,19 +102,19 @@ def login():
 @login_required
 def groups(id):
     db.create_all()
-    prisijunges_vartotojas = Vartotojas.query.get(id)
+    current_user = User.query.get(id)
     groups = Group.query.all()
     form = forms.AddGroupForma()
     if form.validate_on_submit():
-        pridedama_group = Group.query.get(form.group_id.data)
-        prisijunges_vartotojas.groups.append(pridedama_group)
-        db.session.add(prisijunges_vartotojas)
+        adding_group = Group.query.get(form.group_id.data)
+        current_user.groups.append(adding_group)
+        db.session.add(current_user)
         db.session.commit()
-        flash('Group saved successfully!', 'success')
-        return redirect(url_for('groups', id=prisijunges_vartotojas.id))
+        flash('Group added successfully!', 'success')
+        return redirect(url_for('groups', id=current_user.id))
         # 2nd option
         # return redirect(request.url)
-    return render_template('groups.html', groups=groups, prisijunges_vartotojas=prisijunges_vartotojas, form=form)
+    return render_template('groups.html', groups=groups, current_user=current_user, form=form)
 
 
 @app.route("/bills")
@@ -137,7 +136,7 @@ def bill(id):
                     description=form.description.data)
         db.session.add(bill)
         db.session.commit()
-        flash('Bill saved successfully!', 'success')
+        flash('Bill added successfully!', 'success')
         return redirect(url_for('bill', id=group.id))
         # 2nd option
         # return redirect(request.url)
@@ -148,6 +147,16 @@ def bill(id):
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('not_found.html'), 404
+
+
+@app.errorhandler(500)
+def server_error(error):
+    return render_template('server_error.html'), 500
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 %}
 <h3 class="text-center mt-5">Select Your Group</h3>
 <div class="d-flex flex-row justify-content-center flex-wrap mt-5">
-  {% for group in prisijunges_vartotojas.groups %}
+  {% for group in current_user.groups %}
   <div class="cell card shadow-sm">
     <div class="card-body text-center">
       <a

@@ -5,26 +5,26 @@ from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 import __init__
 
 
-class RegistracijosForma(FlaskForm):
-    vardas = StringField('Name', [DataRequired()])
-    el_pastas = StringField('Email', [DataRequired(), Email()])
-    slaptazodis = PasswordField('Password', [DataRequired()])
-    patvirtintas_slaptazodis = PasswordField("Repeat password", [
-                                             EqualTo('slaptazodis', "Slaptažodis turi sutapti.")])
+class RegistrationForm(FlaskForm):
+    name = StringField('Name', [DataRequired()])
+    email = StringField('Email', [DataRequired(), Email()])
+    password = PasswordField('Password', [DataRequired()])
+    verified_password = PasswordField("Repeat password", [
+        EqualTo('password', "Slaptažodis turi sutapti.")])
     submit = SubmitField('Register')
 
-    def check_email(self, el_pastas):
-        vartotojas = __init__.Vartotojas.query.filter_by(
-            el_pastas=el_pastas.data).first()
-        if vartotojas:
+    def check_email(self, email):
+        user = __init__.User.query.filter_by(
+            email=email.data).first()
+        if user:
             raise ValidationError(
                 'This email is used. Choose another.')
 
 
-class PrisijungimoForma(FlaskForm):
-    el_pastas = StringField(
+class LoginForm(FlaskForm):
+    email = StringField(
         'Email', [DataRequired()])
-    slaptazodis = PasswordField(
+    password = PasswordField(
         'Password', [Length(min=5), DataRequired()])
     submit = SubmitField('Login')
 
