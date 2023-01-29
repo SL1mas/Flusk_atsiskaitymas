@@ -1,4 +1,4 @@
-from __init__ import db, Group
+from models import db, Group
 
 db.create_all()
 

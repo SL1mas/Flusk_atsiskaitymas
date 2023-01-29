@@ -4,9 +4,17 @@
 <table class="table table-striped table-hover">
   <thead>
     <tr>
-      <th scope="col">ID</th>
-      <th scope="col">Name</th>
+      {% set ns = namespace(b = 0) %} {% for bill in bills %} {% if
+      bill.group_id == group.id %} {% set ns.b = ns.b + 1 %} {% endif %}
+      {%endfor %} {% if ns.b > 0 %}
+      <th scope="col">No.</th>
+      <th scope="col">Description</th>
       <th scope="col">Amount</th>
+      {% endif %} {% if ns.b == 0 %}
+      <p style="color: red" class="text-center mt-5">
+        This group does not have added bills yet!
+      </p>
+      {% endif %}
     </tr>
   </thead>
   <tbody>

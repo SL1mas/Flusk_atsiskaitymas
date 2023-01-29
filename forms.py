@@ -1,20 +1,22 @@
+from flask_login import current_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, DateField, TextAreaField, SubmitField, BooleanField, PasswordField
-from wtforms.validators import DataRequired, Length, Email, ValidationError, EqualTo
+from flask_wtf.file import FileField, FileAllowed
+from wtforms import StringField, DateField, TextAreaField, PasswordField, BooleanField, SubmitField
+from wtforms.validators import DataRequired, Length, EqualTo, Email, ValidationError
 from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
-import __init__
+from models import User, Group, Bill
 
 
 class RegistrationForm(FlaskForm):
     name = StringField('Name', [DataRequired()])
     email = StringField('Email', [DataRequired(), Email()])
-    password = PasswordField('Password', [DataRequired()])
+    password = PasswordField('Password', [DataRequired(), Length(min=5)])
     verified_password = PasswordField("Repeat password", [
-        EqualTo('password', "Slaptažodis turi sutapti.")])
+        EqualTo('password', "The password must match.")])
     submit = SubmitField('Register')
 
     def check_email(self, email):
-        user = __init__.User.query.filter_by(
+        user = User.User.query.filter_by(
             email=email.data).first()
         if user:
             raise ValidationError(
