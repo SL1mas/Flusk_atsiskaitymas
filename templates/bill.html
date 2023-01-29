@@ -20,9 +20,11 @@
     {% endif %} {% endfor %}
   </tbody>
 </table>
-
+<a href="{{ url_for('groups', id=current_user.id) }}" class="btn btn-primary"
+  >Back</a
+>
 <div class="d-flex justify-content-center">
-  <form class="text-left cell mt-5" action="#" method="POST">
+  <form class="text-left cell" action="#" method="POST">
     {{ form.hidden_tag() }}
     <h1 class="h5 mt-5 mb-3 fw-bold">Add New Bill</h1>
     <div class="form-group">
