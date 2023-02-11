@@ -17,6 +17,7 @@ def register():
         return redirect(url_for('login'))
     form = forms.RegistrationForm()
     if form.validate_on_submit():
+        form.check_email(email=form.email)
         encrypted_password = bcrypt.generate_password_hash(
             form.password.data).decode('utf-8')
         user = User(
@@ -48,19 +49,20 @@ def login():
 @login_required
 def groups(id):
     db.create_all()
-    current_user = User.query.get(id)
     groups = Group.query.all()
     form = forms.AddGroupForma()
     if form.validate_on_submit():
         adding_group = Group.query.get(form.group_id.data)
-        current_user.groups.append(adding_group)
-        db.session.add(current_user)
-        db.session.commit()
-        flash('Group added successfully!', 'success')
+        if adding_group == groups:
+            current_user.groups.append(adding_group)
+            db.session.add(current_user)
+            db.session.commit()
+            flash('Group added successfully!', 'success')
+        flash('Group does not exist!', 'danger')
         return redirect(url_for('groups', id=current_user.id))
         # 2nd option
         # return redirect(request.url)
-    return render_template('groups.html', groups=groups, current_user=current_user, form=form)
+    return render_template('groups.html', groups=groups, form=form)
 
 
 @app.route("/bill/<int:id>", methods=['GET', 'POST'])

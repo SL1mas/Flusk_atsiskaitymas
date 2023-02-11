@@ -1,7 +1,7 @@
 from flask_login import current_user
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, DateField, TextAreaField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, DateField, TextAreaField, PasswordField, BooleanField, SubmitField, IntegerField
 from wtforms.validators import DataRequired, Length, EqualTo, Email, ValidationError
 from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 from models import User, Group, Bill
@@ -16,11 +16,11 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField('Register')
 
     def check_email(self, email):
-        user = User.User.query.filter_by(
+        user = User.query.filter_by(
             email=email.data).first()
         if user:
             raise ValidationError(
-                'This email is used. Choose another.')
+                'This email is used!!! Choose another.')
 
 
 class LoginForm(FlaskForm):
@@ -32,7 +32,7 @@ class LoginForm(FlaskForm):
 
 
 class AddBillForma(FlaskForm):
-    amount = StringField('Amount', [DataRequired()])
+    amount = IntegerField('Amount', [DataRequired()])
     description = StringField('Description', [DataRequired()])
     submit = SubmitField('Add')
 
